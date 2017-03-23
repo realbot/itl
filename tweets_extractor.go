@@ -1,6 +1,7 @@
 package itl
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -16,6 +17,13 @@ type TweetsExtractor struct {
 	Out, Err                                               io.Writer
 	TaskManager                                            *Tasks
 	ConsumerKey, ConsumerSecret, AccessToken, AccessSecret string
+}
+
+type TweetPayload struct {
+	UserID        string   `json:"userid"`
+	Urls          []string `json:"urls"`
+	RetweetCount  int      `json:"retweet_count"`
+	FavoriteCount int      `json:"favorite_count"`
 }
 
 func (te TweetsExtractor) Run(userid string) int {
@@ -50,11 +58,28 @@ func (te TweetsExtractor) createTwitterStream(userid string, twclient *twitter.C
 }
 
 func (te TweetsExtractor) processTweet(tweet *twitter.Tweet) {
-	fmt.Fprintln(te.Out, tweet.Text)
-	if len(tweet.Entities.Urls) > 0 {
-		te.TaskManager.EnqueueTask(tweet.Entities.Urls[0].ExpandedURL)
-		fmt.Fprintln(te.Out, tweet.Entities.Urls[0].ExpandedURL)
-		fmt.Fprintln(te.Out, "r:"+strconv.Itoa(tweet.RetweetCount)+" f:"+strconv.Itoa(tweet.FavoriteCount))
+	if len(tweet.Entities.Urls) > 0 { //&& (tweet.RetweetCount > 0 || tweet.FavoriteCount > 0)
+		var urls = []string{}
+		for _, url := range tweet.Entities.Urls {
+			if url.ExpandedURL != "" {
+				urls = append(urls, url.ExpandedURL)
+			}
+		}
+		if len(urls) > 0 {
+			payload := TweetPayload{
+				UserID:        tweet.IDStr,
+				RetweetCount:  tweet.RetweetCount,
+				FavoriteCount: tweet.FavoriteCount,
+				Urls:          urls,
+			}
+			plb, err := json.Marshal(payload)
+			if err != nil {
+				log.Println(err)
+			} else {
+				fmt.Fprint(te.Err, ".")
+				te.TaskManager.EnqueueTask(string(plb))
+			}
+		}
 	}
 }
 
