@@ -39,7 +39,8 @@ func main() {
 		TaskManager: itl.NewTasks("itl", *redisURL),
 		ConsumerKey: *consumerKey, ConsumerSecret: *consumerSecret,
 		AccessToken: *accessToken, AccessSecret: *accessSecret,
+		UserID: *userID,
 	}
-	exitCode := te.Run(*userID)
+	exitCode := te.Run()
 	os.Exit(exitCode)
 }

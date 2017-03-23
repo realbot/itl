@@ -17,6 +17,7 @@ type TweetsExtractor struct {
 	Out, Err                                               io.Writer
 	TaskManager                                            *Tasks
 	ConsumerKey, ConsumerSecret, AccessToken, AccessSecret string
+	UserID                                                 string
 }
 
 type TweetPayload struct {
@@ -26,11 +27,11 @@ type TweetPayload struct {
 	FavoriteCount int      `json:"favorite_count"`
 }
 
-func (te TweetsExtractor) Run(userid string) int {
+func (te TweetsExtractor) Run() int {
 	fmt.Fprintf(te.Out, "itl extractor version %s\n", extractorVersion)
 
 	twclient := te.createTwitterClient()
-	stream := te.createTwitterStream(userid, twclient)
+	stream := te.createTwitterStream(te.UserID, twclient)
 
 	demux := twitter.NewSwitchDemux()
 	demux.Tweet = te.processTweet
@@ -67,7 +68,7 @@ func (te TweetsExtractor) processTweet(tweet *twitter.Tweet) {
 		}
 		if len(urls) > 0 {
 			payload := TweetPayload{
-				UserID:        tweet.IDStr,
+				UserID:        te.UserID,
 				RetweetCount:  tweet.RetweetCount,
 				FavoriteCount: tweet.FavoriteCount,
 				Urls:          urls,
