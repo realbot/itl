@@ -25,6 +25,7 @@ type TweetPayload struct {
 	Urls          []string `json:"urls"`
 	RetweetCount  int      `json:"retweet_count"`
 	FavoriteCount int      `json:"favorite_count"`
+	CreatedAt     string   `json:"created_at"`
 }
 
 func (te TweetsExtractor) Run() int {
@@ -71,6 +72,7 @@ func (te TweetsExtractor) processTweet(tweet *twitter.Tweet) {
 				UserID:        te.UserID,
 				RetweetCount:  tweet.RetweetCount,
 				FavoriteCount: tweet.FavoriteCount,
+				CreatedAt:     tweet.CreatedAt,
 				Urls:          urls,
 			}
 			plb, err := json.Marshal(payload)
