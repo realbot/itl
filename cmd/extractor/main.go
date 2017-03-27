@@ -35,7 +35,6 @@ func main() {
 	}
 
 	te := itl.TweetsExtractor{
-		Out: os.Stdout, Err: os.Stderr,
 		TaskManager: itl.NewTasks("itl", *redisURL),
 		ConsumerKey: *consumerKey, ConsumerSecret: *consumerSecret,
 		AccessToken: *accessToken, AccessSecret: *accessSecret,

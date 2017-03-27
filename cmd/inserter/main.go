@@ -22,8 +22,8 @@ func main() {
 	flag.Parse()
 
 	ti := itl.TweetsInserter{
-		Out: os.Stdout, Err: os.Stderr,
-		TaskManager: itl.NewTasks("itl", *redisURL),
+		TaskManager:  itl.NewTasks("itl", *redisURL),
+		ChartManager: itl.NewCharts(itl.NewRedisChartsStore(*redisURL)),
 	}
 	exitCode := ti.Run(*numConsumers)
 	os.Exit(exitCode)

@@ -1,20 +1,20 @@
 package itl
 
 import (
-	"fmt"
-	"io"
-	"log"
+	"encoding/json"
+
+	"github.com/golang/glog"
 )
 
 const inserterVersion = "1.0.0"
 
 type TweetsInserter struct {
-	Out, Err    io.Writer
-	TaskManager *Tasks
+	TaskManager  *Tasks
+	ChartManager *Charts
 }
 
 func (ti TweetsInserter) Run(numConsumers int) int {
-	fmt.Fprintf(ti.Out, "itl inserter version %s\n", inserterVersion)
+	glog.Infof("itl inserter version %s\n", inserterVersion)
 	ti.TaskManager.StartConsumers(numConsumers, ti.processTweet)
 
 	waitForExit()
@@ -23,6 +23,12 @@ func (ti TweetsInserter) Run(numConsumers int) int {
 }
 
 func (ti TweetsInserter) processTweet(payload string) error {
-	log.Println(payload)
+	tp := &TweetPayload{}
+	err := json.Unmarshal([]byte(payload), tp)
+	if err != nil {
+		glog.Warning(err)
+	} else {
+		ti.ChartManager.Hit(tp.UserID, tp.CreatedAt, tp.Urls)
+	}
 	return nil
 }

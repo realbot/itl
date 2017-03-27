@@ -2,19 +2,17 @@ package itl
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"log"
 	"strconv"
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
+	"github.com/golang/glog"
 )
 
 const extractorVersion = "1.0.0"
 
 type TweetsExtractor struct {
-	Out, Err                                               io.Writer
 	TaskManager                                            *Tasks
 	ConsumerKey, ConsumerSecret, AccessToken, AccessSecret string
 	UserID                                                 string
@@ -29,7 +27,7 @@ type TweetPayload struct {
 }
 
 func (te TweetsExtractor) Run() int {
-	fmt.Fprintf(te.Out, "itl extractor version %s\n", extractorVersion)
+	glog.Infof("itl extractor version %s\n", extractorVersion)
 
 	twclient := te.createTwitterClient()
 	stream := te.createTwitterStream(te.UserID, twclient)
@@ -40,7 +38,7 @@ func (te TweetsExtractor) Run() int {
 
 	waitForExit()
 
-	fmt.Fprintln(te.Out, "Stopping Stream...")
+	glog.Info("Stopping Stream...")
 	stream.Stop()
 
 	return ExitCodeOK
@@ -79,7 +77,7 @@ func (te TweetsExtractor) processTweet(tweet *twitter.Tweet) {
 			if err != nil {
 				log.Println(err)
 			} else {
-				fmt.Fprint(te.Err, ".")
+				glog.Info(".")
 				te.TaskManager.EnqueueTask(string(plb))
 			}
 		}
