@@ -2,7 +2,6 @@ package itl
 
 import (
 	"encoding/json"
-	"log"
 	"strconv"
 
 	"github.com/dghubble/go-twitter/twitter"
@@ -54,7 +53,7 @@ func (te TweetsExtractor) createTwitterStream(userid string, twclient *twitter.C
 	}
 	stream, err := twclient.Streams.Filter(filterParams)
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 	return
 }
@@ -79,9 +78,8 @@ func (te TweetsExtractor) processTweet(tweet *twitter.Tweet) {
 			}
 			plb, err := json.Marshal(payload)
 			if err != nil {
-				log.Println(err)
+				glog.Warning(err)
 			} else {
-				glog.Info(".")
 				te.TaskManager.EnqueueTask(string(plb))
 			}
 		}
@@ -100,7 +98,7 @@ func (te TweetsExtractor) createTwitterClient() (twclient *twitter.Client) {
 func (te TweetsExtractor) friendsOf(userID string, twclient *twitter.Client) (friends []string) {
 	uid, err := strconv.ParseInt(userID, 10, 64)
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 	params := &twitter.FriendIDParams{
 		UserID: uid,
@@ -113,7 +111,7 @@ func (te TweetsExtractor) friendsOf(userID string, twclient *twitter.Client) (fr
 			friends = append(friends, strconv.FormatInt(f, 10))
 		}
 	} else {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 	return
 }

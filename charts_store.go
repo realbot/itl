@@ -4,7 +4,7 @@ import "github.com/go-redis/redis"
 import "log"
 
 type ChartsStore interface {
-	update(key, url string)
+	update(key, url string, weigth float64)
 }
 
 type RedisChartsStore struct {
@@ -22,8 +22,8 @@ func NewRedisChartsStore(redisURL string) ChartsStore {
 	}
 }
 
-func (r RedisChartsStore) update(key, url string) {
-	_, err := r.redisClient.ZIncr(key, redis.Z{1, url}).Result()
+func (r RedisChartsStore) update(key, url string, weigth float64) {
+	_, err := r.redisClient.ZIncr(key, redis.Z{weigth, url}).Result()
 	if err != nil {
 		log.Println(err)
 	}

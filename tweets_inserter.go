@@ -29,10 +29,19 @@ func (ti TweetsInserter) validateTweet(tweet *TweetPayload) bool {
 }
 
 func (ti TweetsInserter) validateURL(url string) bool {
-	if strings.HasPrefix(url, "https://twitter.com") || strings.HasPrefix(url, "https://facebook.com") || strings.HasPrefix(url, "https://plus.google.com") {
+	if strings.HasPrefix(url, "https://twitter.com") ||
+		strings.HasPrefix(url, "https://facebook.com") ||
+		strings.HasPrefix(url, "https://plus.google.com") {
 		return false
 	}
 	return true
+}
+
+func (ti TweetsInserter) weigth(tweet *TweetPayload) float64 {
+	if tweet.FavoriteCount > 0 || tweet.RetweetCount > 0 {
+		return 1.2
+	}
+	return 1
 }
 
 func (ti TweetsInserter) processTweet(payload string) error {
@@ -43,7 +52,7 @@ func (ti TweetsInserter) processTweet(payload string) error {
 	} else {
 		for _, url := range tp.Urls {
 			if ti.validateURL(url) {
-				ti.ChartManager.Hit(tp.UserID, tp.CreatedAt, url)
+				ti.ChartManager.Hit(tp.UserID, tp.CreatedAt, url, ti.weigth(tp))
 			}
 		}
 	}
