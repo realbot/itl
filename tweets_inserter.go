@@ -53,6 +53,7 @@ func (ti TweetsInserter) processTweet(payload string) error {
 	} else {
 		for _, url := range tp.Urls {
 			if ti.validateURL(url) {
+				glog.Infof("%f %s", ti.weigth(tp), url)
 				ti.ChartManager.Hit(tp.UserID, tp.CreatedAt, url, ti.weigth(tp))
 			}
 		}
