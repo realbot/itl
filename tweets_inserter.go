@@ -2,6 +2,7 @@ package itl
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/golang/glog"
 )
@@ -22,13 +23,29 @@ func (ti TweetsInserter) Run(numConsumers int) int {
 	return ExitCodeOK
 }
 
+func (ti TweetsInserter) validateTweet(tweet *TweetPayload) bool {
+	ratio := float64(tweet.UserFriendsCount) / float64(tweet.UserFollowersCount)
+	return ratio >= 0.01 && ratio <= 100
+}
+
+func (ti TweetsInserter) validateURL(url string) bool {
+	if strings.HasPrefix(url, "https://twitter.com") || strings.HasPrefix(url, "https://facebook.com") || strings.HasPrefix(url, "https://plus.google.com") {
+		return false
+	}
+	return true
+}
+
 func (ti TweetsInserter) processTweet(payload string) error {
 	tp := &TweetPayload{}
 	err := json.Unmarshal([]byte(payload), tp)
 	if err != nil {
 		glog.Warning(err)
 	} else {
-		ti.ChartManager.Hit(tp.UserID, tp.CreatedAt, tp.Urls)
+		for _, url := range tp.Urls {
+			if ti.validateURL(url) {
+				ti.ChartManager.Hit(tp.UserID, tp.CreatedAt, url)
+			}
+		}
 	}
 	return nil
 }

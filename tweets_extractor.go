@@ -19,11 +19,13 @@ type TweetsExtractor struct {
 }
 
 type TweetPayload struct {
-	UserID        string   `json:"userid"`
-	Urls          []string `json:"urls"`
-	RetweetCount  int      `json:"retweet_count"`
-	FavoriteCount int      `json:"favorite_count"`
-	CreatedAt     string   `json:"created_at"`
+	UserID             string   `json:"user_id"`
+	UserFriendsCount   int      `json:"user_friends_count"`
+	UserFollowersCount int      `json:"user_followers_count"`
+	Urls               []string `json:"urls"`
+	RetweetCount       int      `json:"retweet_count"`
+	FavoriteCount      int      `json:"favorite_count"`
+	CreatedAt          string   `json:"created_at"`
 }
 
 func (te TweetsExtractor) Run() int {
@@ -58,7 +60,7 @@ func (te TweetsExtractor) createTwitterStream(userid string, twclient *twitter.C
 }
 
 func (te TweetsExtractor) processTweet(tweet *twitter.Tweet) {
-	if len(tweet.Entities.Urls) > 0 { //&& (tweet.RetweetCount > 0 || tweet.FavoriteCount > 0)
+	if len(tweet.Entities.Urls) > 0 {
 		var urls = []string{}
 		for _, url := range tweet.Entities.Urls {
 			if url.ExpandedURL != "" {
@@ -67,11 +69,13 @@ func (te TweetsExtractor) processTweet(tweet *twitter.Tweet) {
 		}
 		if len(urls) > 0 {
 			payload := TweetPayload{
-				UserID:        te.UserID,
-				RetweetCount:  tweet.RetweetCount,
-				FavoriteCount: tweet.FavoriteCount,
-				CreatedAt:     tweet.CreatedAt,
-				Urls:          urls,
+				UserID:             te.UserID,
+				UserFriendsCount:   tweet.User.FriendsCount,
+				UserFollowersCount: tweet.User.FollowersCount,
+				RetweetCount:       tweet.RetweetCount,
+				FavoriteCount:      tweet.FavoriteCount,
+				CreatedAt:          tweet.CreatedAt,
+				Urls:               urls,
 			}
 			plb, err := json.Marshal(payload)
 			if err != nil {

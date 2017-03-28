@@ -18,13 +18,11 @@ func NewCharts(store ChartsStore) *Charts {
 	}
 }
 
-func (c Charts) Hit(userid, date string, urls []string) {
+func (c Charts) Hit(userid, date string, url string) {
 	t := c.parseDate(date)
-	for _, u := range urls {
-		c.store.update(c.dayKey(userid, t), u)
-		c.store.update(c.monthKey(userid, t), u)
-		c.store.update(c.globalKey(userid, t), u)
-	}
+	c.store.update(c.dayKey(userid, t), url)
+	c.store.update(c.monthKey(userid, t), url)
+	c.store.update(c.globalKey(userid, t), url)
 }
 
 func (c Charts) dayKey(userid string, t time.Time) string {
