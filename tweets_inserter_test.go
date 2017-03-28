@@ -10,6 +10,9 @@ func TestValidateURL(t *testing.T) {
 	if ti.validateURL("https://facebook.com/foo/bar") != false {
 		t.Error("Must skip facebook urls")
 	}
+	if ti.validateURL("https://www.facebook.com/foo/bar") != false {
+		t.Error("Must skip facebook urls")
+	}
 	if ti.validateURL("https://plus.google.com/foo/bar") != false {
 		t.Error("Must skip plus urls")
 	}
