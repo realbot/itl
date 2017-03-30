@@ -16,6 +16,13 @@ func TestValidateURL(t *testing.T) {
 	if ti.validateURL("https://plus.google.com/foo/bar") != false {
 		t.Error("Must skip plus urls")
 	}
+	if ti.validateURL("http://www.theverge.com") != false {
+		t.Error("Must skip verge urls")
+	}
+	if ti.validateURL("https://youtu.be") != false {
+		t.Error("Must skip youtube urls")
+	}
+
 }
 
 func TestValidateTweet(t *testing.T) {
