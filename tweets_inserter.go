@@ -34,7 +34,8 @@ func (ti TweetsInserter) validateURL(url string) bool {
 		strings.HasPrefix(url, "https://www.facebook.com") ||
 		strings.HasPrefix(url, "https://plus.google.com") ||
 		strings.HasPrefix(url, "https://youtu.be") ||
-		strings.HasPrefix(url, "http://www.theverge.com") {
+		strings.HasPrefix(url, "http://www.theverge.com") ||
+	    strings.HasPrefix(url, "https://www.theverge.com") {
 		return false
 	}
 	return true
